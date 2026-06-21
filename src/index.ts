@@ -5,6 +5,8 @@ export { fetchAppId } from "./auth/bootstrap.js"
 export type { AppCredentials } from "./auth/bootstrap.js"
 export { validateCredentials } from "./auth/validate.js"
 export type { ValidateConfig } from "./auth/validate.js"
+export { connect } from "./auth/connect.js"
+export type { ConnectConfig } from "./auth/connect.js"
 export {
   createMemoryStore,
   createKeychainStore,
