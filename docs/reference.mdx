@@ -45,6 +45,28 @@ const trackId = await readNowPlayingTrackId() // number | undefined
 
 Returns `undefined` if nothing is playing or the state file is absent. `options` is `{ path?: string }` — overrides the default macOS location (`defaultPlayerStatePath()`). macOS only.
 
+## 📊 Collection stats
+
+### `readLibraryStats(options?)`
+
+Collection analytics computed from the Qobuz desktop app's **local library database** (`qobuz.db`) — no API call, no auth. Reads the SQLite file read-only/immutable (via the system `sqlite3`), so the running app is undisturbed.
+
+```ts
+import { readLibraryStats } from "@kud/qobuz"
+
+const stats = await readLibraryStats({ limit: 10 })
+// stats.quality      → [{ bitDepth: 24, count: 192 }, …]   (hi-res ratio)
+// stats.topGenres    → [{ name: "Metal", count: 484 }, …]
+// stats.topLabels    → [{ name: "Nuclear Blast", count: 75 }, …]
+// stats.topArtists   → [{ name: "In Flames", count: 10 }, …]  (by offline albums)
+// stats.recentlyAdded→ [{ month: "2026-06", count: 51 }, …]
+// stats.totals       → { offlineAlbums, offlineArtists, offlineTracks, savedTracks }
+```
+
+Returns a `LibraryStats`, or `undefined` if the database (or `sqlite3`) is absent. `options` is `{ path?: string; limit?: number }`. macOS only.
+
+> **Offline vs saved.** Quality (`quality`, `topArtists`, `recentlyAdded`) comes from your **offline/downloaded** tracks; genres and labels come from your broader **saved** library — the two live in different tables, so the type names them explicitly.
+
 ## 🛠️ Low-level transport
 
 For endpoints not yet wrapped by a resource, drop down to the raw signed-request transport.

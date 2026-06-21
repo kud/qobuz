@@ -27,6 +27,15 @@ export type { DeepLink, DeepLinkBase } from "./deep-link.js"
 export { readNowPlayingTrackId, defaultPlayerStatePath } from "./now-playing.js"
 export type { NowPlayingOptions } from "./now-playing.js"
 
+export { readLibraryStats, defaultLibraryDbPath } from "./library-stats.js"
+export type {
+  LibraryStats,
+  LibraryStatsOptions,
+  NamedCount,
+  QualityBucket,
+  MonthCount,
+} from "./library-stats.js"
+
 export type { UserFavourites } from "./resources/favourites.js"
 export type { CreatePlaylistParams } from "./resources/playlists.js"
 
