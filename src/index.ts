@@ -24,6 +24,9 @@ export type { QobuzError, QobuzErrorKind } from "./http/errors.js"
 export { createDeepLink } from "./deep-link.js"
 export type { DeepLink, DeepLinkBase } from "./deep-link.js"
 
+export { readNowPlayingTrackId, defaultPlayerStatePath } from "./now-playing.js"
+export type { NowPlayingOptions } from "./now-playing.js"
+
 export type { UserFavourites } from "./resources/favourites.js"
 export type { CreatePlaylistParams } from "./resources/playlists.js"
 

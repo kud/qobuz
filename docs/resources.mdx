@@ -165,3 +165,18 @@ Deletes a playlist.
 ```ts
 await client.playlists.remove(65996412)
 ```
+
+## ▶️ `client.nowPlaying`
+
+### `nowPlaying(options?)`
+
+The track Qobuz is **currently playing**. macOS doesn't expose Qobuz to its now-playing system, so this reads the desktop app's own queue state at `~/Library/Application Support/Qobuz/player-0.json` (macOS only) and fetches the track's metadata.
+
+```ts
+const track = await client.nowPlaying()
+if (track) console.log(`${track.artist?.name} — ${track.title}`)
+```
+
+Returns a `Track`, or `undefined` if nothing is playing / the desktop app isn't running. Pass `{ path }` to point at a non-default state file.
+
+For just the id (no API call), use the standalone **`readNowPlayingTrackId`** export — see the **Reference** page.

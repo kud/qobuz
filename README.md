@@ -16,6 +16,7 @@
 - **Pluggable credential store** — ships in-memory and macOS Keychain implementations; bring your own.
 - **Typed resources** — search, albums, artists, tracks, playlists, favourites — clean camelCase domain types mapped from the raw API.
 - **Deep links** — build `open.qobuz.com` URLs to open anything in the Qobuz app.
+- **Now playing** — read the track the Qobuz desktop app is currently playing (macOS), bypassing the OS now-playing system Qobuz never registers with.
 - **ESM + types, zero runtime deps** — tree-shakeable, fully typed, ships nothing extra.
 
 ## Install

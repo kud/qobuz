@@ -3,7 +3,7 @@ title: "qobuz"
 description: "Reverse-engineered Qobuz API client for Node.js — fully typed search, metadata, library, playlists, and deep links"
 ---
 
-`@kud/qobuz` is a typed, ESM-only client for the (reverse-engineered) Qobuz v0.2 API. It wraps authentication, search, rich metadata, full favourites and playlist management, and deep links into the Qobuz apps — returning clean camelCase domain types, with zero runtime dependencies. It's the shared core that [`@kud/qobuz-cli`](https://kud.io/projects/qobuz-cli) builds on.
+`@kud/qobuz` is a typed, ESM-only client for the (reverse-engineered) Qobuz v0.2 API. It wraps authentication, search, rich metadata, full favourites and playlist management, deep links into the Qobuz apps, and reading the desktop app's now-playing track — returning clean camelCase domain types, with zero runtime dependencies. It's the shared core that [`@kud/qobuz-cli`](https://kud.io/projects/qobuz-cli) builds on.
 
 ## 🚀 Install
 
@@ -41,17 +41,18 @@ const client = await createQobuzClient({ store: createKeychainStore() })
 
 `createQobuzClient` (and `connect`) resolve to a `QobuzClient` — a plain object of resources and helpers:
 
-| Property            | Description                                          |
-| ------------------- | ---------------------------------------------------- |
-| `client.appId`      | The resolved Qobuz application id in use.            |
-| `client.search`     | Catalogue search across albums, tracks, and artists. |
-| `client.albums`     | Album metadata.                                      |
-| `client.artists`    | Artist metadata and similar-artist discovery.        |
-| `client.tracks`     | Track metadata.                                      |
-| `client.favourites` | List, add, and remove favourites.                    |
-| `client.playlists`  | List, read, create, edit, and delete playlists.      |
-| `client.deepLink`   | Build `open.qobuz.com` URLs for any entity.          |
-| `client.signOut()`  | Clear the credential store.                          |
+| Property              | Description                                                  |
+| --------------------- | ------------------------------------------------------------ |
+| `client.appId`        | The resolved Qobuz application id in use.                    |
+| `client.search`       | Catalogue search across albums, tracks, and artists.         |
+| `client.albums`       | Album metadata.                                              |
+| `client.artists`      | Artist metadata and similar-artist discovery.                |
+| `client.tracks`       | Track metadata.                                              |
+| `client.favourites`   | List, add, and remove favourites.                            |
+| `client.playlists`    | List, read, create, edit, and delete playlists.              |
+| `client.deepLink`     | Build `open.qobuz.com` URLs for any entity.                  |
+| `client.nowPlaying()` | The `Track` Qobuz is currently playing (desktop app, macOS). |
+| `client.signOut()`    | Clear the credential store.                                  |
 
 Every resource method is documented on the **Resources** page; the auth helpers and credential stores on **Authentication**; types, deep links, and errors on **Reference**.
 

@@ -7,7 +7,9 @@ import { createFavouritesResource } from "./resources/favourites.js"
 import { createPlaylistsResource } from "./resources/playlists.js"
 import { createSearchResource } from "./resources/search.js"
 import { createTracksResource } from "./resources/tracks.js"
+import { readNowPlayingTrackId, type NowPlayingOptions } from "./now-playing.js"
 import type { CredentialStore } from "./auth/credential-store.js"
+import type { Track } from "./types/domain.js"
 
 export type QobuzClientConfig = {
   store: CredentialStore
@@ -28,15 +30,23 @@ export const createQobuzClient = async ({
     fetchImpl,
   })
 
+  const tracks = createTracksResource(transport)
+
   return {
     appId: credentials.appId,
     search: createSearchResource(transport),
     albums: createAlbumsResource(transport),
     artists: createArtistsResource(transport),
-    tracks: createTracksResource(transport),
+    tracks,
     favourites: createFavouritesResource(transport),
     playlists: createPlaylistsResource(transport),
     deepLink: createDeepLink(),
+    nowPlaying: async (
+      options?: NowPlayingOptions,
+    ): Promise<Track | undefined> => {
+      const trackId = await readNowPlayingTrackId(options)
+      return trackId === undefined ? undefined : tracks.get(trackId)
+    },
     signOut: () => store.clear(),
   }
 }

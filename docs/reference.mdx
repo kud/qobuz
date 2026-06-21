@@ -31,6 +31,20 @@ const play = createDeepLink("play") // https://play.qobuz.com/…
 
 Returns a `DeepLink` — `{ album(id), track(id), playlist(id), artist(id) }`.
 
+## ▶️ Now playing
+
+### `readNowPlayingTrackId(options?)`
+
+The id of the currently-playing track, read directly from the Qobuz desktop app's local queue state — no API call, no auth. The lower-level primitive behind `client.nowPlaying()`.
+
+```ts
+import { readNowPlayingTrackId } from "@kud/qobuz"
+
+const trackId = await readNowPlayingTrackId() // number | undefined
+```
+
+Returns `undefined` if nothing is playing or the state file is absent. `options` is `{ path?: string }` — overrides the default macOS location (`defaultPlayerStatePath()`). macOS only.
+
 ## 🛠️ Low-level transport
 
 For endpoints not yet wrapped by a resource, drop down to the raw signed-request transport.
