@@ -4,6 +4,10 @@
   "description": "Reverse-engineered Qobuz API client for Node.js",
   "type": "module",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kud/qobuz.git"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
