@@ -1,0 +1,140 @@
+---
+title: "Reference"
+description: "Deep links, the low-level transport, domain types, and error handling"
+---
+
+## 🔗 Deep links
+
+Build URLs that open an entity in the Qobuz app or web player — pure string builders, no network.
+
+### `client.deepLink`
+
+Every client carries a deep-link helper:
+
+```ts
+client.deepLink.album("0634904032432") // https://open.qobuz.com/album/0634904032432
+client.deepLink.track(33933680)
+client.deepLink.playlist(65996412)
+client.deepLink.artist(43840)
+```
+
+### `createDeepLink(base?)`
+
+Use it standalone (without a client). `base` is `"open"` (default, shareable) or `"play"` (web player).
+
+```ts
+import { createDeepLink } from "@kud/qobuz"
+
+const open = createDeepLink() // https://open.qobuz.com/…
+const play = createDeepLink("play") // https://play.qobuz.com/…
+```
+
+Returns a `DeepLink` — `{ album(id), track(id), playlist(id), artist(id) }`.
+
+## 🛠️ Low-level transport
+
+For endpoints not yet wrapped by a resource, drop down to the raw signed-request transport.
+
+### `createTransport(config)`
+
+```ts
+import { createTransport, QOBUZ_BASE_URL } from "@kud/qobuz"
+
+const transport = createTransport({ appId, token })
+const raw = await transport.get("label/get", { label_id: 123 })
+```
+
+`config` is `{ appId, token?, baseUrl?, fetchImpl? }`. The returned `Transport` exposes `get<T>(path, query?)`, which injects the `X-App-Id` / `X-User-Auth-Token` / `User-Agent` headers and throws a `QobuzError` (`kind: "http"`) on non-2xx. `QOBUZ_BASE_URL` is the default API base.
+
+## 📐 Domain types
+
+All ids and fields use camelCase. Optional fields are absent when Qobuz doesn't return them.
+
+```ts
+type Album = {
+  id: string // note: album ids are strings
+  title: string
+  artist?: Artist
+  tracksCount?: number
+  releaseDate?: string
+  duration?: number
+  image?: QobuzImage
+  genre?: string
+  hires?: boolean
+}
+
+type Artist = {
+  id: number
+  name: string
+  picture?: string
+  albumsCount?: number
+}
+
+type Track = {
+  id: number
+  title: string
+  album?: Album
+  artist?: Artist
+  trackNumber?: number
+  duration?: number
+  hires?: boolean
+}
+
+type Playlist = {
+  id: number
+  name: string
+  description?: string
+  tracksCount?: number
+  isPublic?: boolean
+  owner?: string
+  duration?: number
+}
+
+type QobuzImage = { thumbnail?: string; small?: string; large?: string }
+
+type SearchResults = {
+  query: string
+  albums: Album[]
+  tracks: Track[]
+  artists: Artist[]
+}
+type UserFavourites = { albums: Album[]; artists: Artist[]; tracks: Track[] }
+
+type FavouriteType = "albums" | "artists" | "tracks"
+type PageOptions = { limit?: number; offset?: number }
+type CreatePlaylistParams = {
+  name: string
+  description?: string
+  isPublic?: boolean
+}
+```
+
+## ⚠️ Error handling
+
+Every failure throws a `QobuzError` — a standard `Error` augmented with a `kind` and an optional HTTP `status`:
+
+```ts
+type QobuzError = Error & {
+  kind: "http" | "auth" | "bootstrap"
+  status?: number
+}
+```
+
+| `kind`      | When                                                                |
+| ----------- | ------------------------------------------------------------------- |
+| `auth`      | The token/app_id was rejected (e.g. expired session).               |
+| `http`      | A non-2xx response from the API; `status` carries the code.         |
+| `bootstrap` | `fetchAppId` couldn't scrape the app_id (Qobuz changed its bundle). |
+
+```ts
+import { connect, createMemoryStore, type QobuzError } from "@kud/qobuz"
+
+try {
+  await connect({ token, store: createMemoryStore() })
+} catch (error) {
+  const qobuzError = error as QobuzError
+  if (qobuzError.kind === "auth") {
+    // prompt the user to reconnect with a fresh token
+  }
+}
+```

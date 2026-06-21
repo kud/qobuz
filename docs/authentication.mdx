@@ -1,0 +1,129 @@
+---
+title: "Authentication"
+description: "Get a Qobuz token, connect a client, and persist credentials with a pluggable store"
+---
+
+Qobuz defends password login with captchas and IP-flagging, so `@kud/qobuz` authenticates with a **`user_auth_token`** taken from a logged-in browser session. No password ever touches the library.
+
+## 🔑 Getting a token
+
+1. Open [play.qobuz.com](https://play.qobuz.com) and log in.
+2. Open DevTools → **Network**, and click any request to `www.qobuz.com/api.json`.
+3. From its **Request Headers**, copy `X-User-Auth-Token` (and optionally `X-App-Id`).
+
+The `app_id` can also be scraped automatically (see `fetchAppId`), so usually you only need the token.
+
+## 🤝 `connect(config)`
+
+Validates a token, persists it to a store, and returns a ready `QobuzClient`. The one-call entry point for first-time auth.
+
+```ts
+import { connect, createKeychainStore } from "@kud/qobuz"
+
+const client = await connect({
+  token, // required — user_auth_token
+  store: createKeychainStore(), // required — where to persist {appId, token}
+  // appId,                       // optional — scraped via fetchAppId() if omitted
+  // fetchImpl,                   // optional — custom fetch (testing)
+})
+```
+
+| Field       | Type              | Notes                                            |
+| ----------- | ----------------- | ------------------------------------------------ |
+| `token`     | `string`          | The `user_auth_token`. Required.                 |
+| `store`     | `CredentialStore` | Where validated credentials are saved. Required. |
+| `appId`     | `string?`         | Defaults to the result of `fetchAppId()`.        |
+| `fetchImpl` | `typeof fetch?`   | Override the global `fetch`.                     |
+
+Throws a `QobuzError` with `kind: "auth"` if Qobuz rejects the token.
+
+## 🔁 `createQobuzClient(config)`
+
+Builds a client from credentials **already** in the store — use it on every run after the first `connect`.
+
+```ts
+import { createQobuzClient, createKeychainStore } from "@kud/qobuz"
+
+const client = await createQobuzClient({ store: createKeychainStore() })
+```
+
+Throws a `QobuzError` with `kind: "auth"` if the store is empty (not connected yet).
+
+## ✅ `validateCredentials(config)`
+
+Checks an `appId` + `token` against the live API (a lightweight favourites call). Resolves on success; throws a `QobuzError` (`kind: "auth"`, `status: 401`) if rejected. `connect` calls this for you.
+
+```ts
+import { validateCredentials } from "@kud/qobuz"
+
+await validateCredentials({ appId, token }) // throws if invalid
+```
+
+## 🏷️ `fetchAppId(options?)`
+
+Scrapes the current Qobuz `app_id` from the web player bundle.
+
+```ts
+import { fetchAppId } from "@kud/qobuz"
+
+const { appId, bundlePath } = await fetchAppId()
+```
+
+Returns `{ appId: string; bundlePath: string }`. Throws a `QobuzError` with `kind: "bootstrap"` if the bundle layout changes and the id can't be found.
+
+## 🗄️ Credential stores
+
+A `CredentialStore` is a tiny async interface — the seam that lets the same client run in a CLI, an MCP server, a desktop app, or a test:
+
+```ts
+type StoredCredentials = { appId: string; token: string; savedAt?: string }
+
+type CredentialStore = {
+  load: () => Promise<StoredCredentials | undefined>
+  save: (credentials: StoredCredentials) => Promise<void>
+  clear: () => Promise<void>
+}
+```
+
+### `createKeychainStore(options?)`
+
+Persists credentials in the **macOS Keychain** via the `security` CLI (macOS only).
+
+```ts
+import { createKeychainStore } from "@kud/qobuz"
+
+const store = createKeychainStore() // service "qobuz", account "credentials"
+const store2 = createKeychainStore({ service: "my-app", account: "qobuz" })
+```
+
+### `createMemoryStore(seed?)`
+
+An ephemeral in-process store — ideal for tests or one-off scripts. Optionally seed it with existing credentials.
+
+```ts
+import { createMemoryStore } from "@kud/qobuz"
+
+const store = createMemoryStore({ appId, token })
+```
+
+### Custom stores
+
+Implement the three methods against any backend (a file, a database, an OS keyring):
+
+```ts
+import { type CredentialStore } from "@kud/qobuz"
+import { readFile, writeFile, rm } from "node:fs/promises"
+
+const fileStore = (path: string): CredentialStore => ({
+  load: async () => {
+    try {
+      return JSON.parse(await readFile(path, "utf8"))
+    } catch {
+      return undefined
+    }
+  },
+  save: async (creds) =>
+    writeFile(path, JSON.stringify(creds), { mode: 0o600 }),
+  clear: async () => rm(path, { force: true }),
+})
+```

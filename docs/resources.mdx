@@ -1,0 +1,167 @@
+---
+title: "Resources"
+description: "Every method on the Qobuz client — search, albums, artists, tracks, favourites, and playlists"
+---
+
+All methods live on the `QobuzClient` returned by `connect` / `createQobuzClient`, are `async`, and return mapped camelCase domain types (see the **Reference** page). List methods take an optional `PageOptions` — `{ limit?: number; offset?: number }`.
+
+> **ID types matter.** Album ids are **strings** (e.g. `"0634904032432"`); artist, track, and playlist ids are **numbers**.
+
+## 🔍 `client.search`
+
+### `search(query, options?)`
+
+Searches the catalogue across albums, tracks, and artists in one call.
+
+```ts
+const results = await client.search.search("radiohead", { limit: 10 })
+
+results.albums // Album[]
+results.tracks // Track[]
+results.artists // Artist[]
+```
+
+Returns a `SearchResults` — `{ query, albums, tracks, artists }`.
+
+## 💿 `client.albums`
+
+### `get(albumId)`
+
+Full album metadata. `albumId` is a **string**.
+
+```ts
+const album = await client.albums.get("0634904032432")
+// album.title, album.artist?.name, album.tracksCount, album.releaseDate, album.hires
+```
+
+Returns an `Album`.
+
+## 🎤 `client.artists`
+
+### `get(artistId)`
+
+Artist metadata. `artistId` is a **number**.
+
+```ts
+const artist = await client.artists.get(43840)
+// artist.name, artist.albumsCount
+```
+
+Returns an `Artist`.
+
+### `getSimilar(artistId, options?)`
+
+Artists similar to the given one.
+
+```ts
+const similar = await client.artists.getSimilar(43840, { limit: 10 })
+// Artist[] — e.g. Björk, Alt-J, James Blake…
+```
+
+Returns `Artist[]`.
+
+## 🎵 `client.tracks`
+
+### `get(trackId)`
+
+Track metadata, including its album and performing artist. `trackId` is a **number**.
+
+```ts
+const track = await client.tracks.get(33933680)
+// track.title, track.artist?.name, track.album?.title, track.duration
+```
+
+Returns a `Track`.
+
+## ⭐ `client.favourites`
+
+### `list(type, options?)`
+
+Lists the user's favourites of a given `type` (`"albums" | "artists" | "tracks"`). The response always carries all three arrays; the requested type is populated.
+
+```ts
+const favs = await client.favourites.list("albums", { limit: 50 })
+favs.albums // Album[]
+```
+
+Returns `UserFavourites` — `{ albums, artists, tracks }`.
+
+### `add(type, id)`
+
+Adds an item to favourites. `id` is the entity id as a **string**.
+
+```ts
+await client.favourites.add("albums", "0634904032432")
+```
+
+### `remove(type, id)`
+
+Removes an item from favourites.
+
+```ts
+await client.favourites.remove("albums", "0634904032432")
+```
+
+## 📝 `client.playlists`
+
+### `listForUser(options?)`
+
+The current user's playlists.
+
+```ts
+const playlists = await client.playlists.listForUser()
+// Playlist[] — id, name, tracksCount
+```
+
+Returns `Playlist[]`.
+
+### `get(playlistId, options?)`
+
+A single playlist (with its tracks). `playlistId` is a **number**.
+
+```ts
+const playlist = await client.playlists.get(65996412)
+```
+
+Returns a `Playlist`.
+
+### `create(params)`
+
+Creates a playlist. `params` is a `CreatePlaylistParams` — `{ name, description?, isPublic? }`.
+
+```ts
+const playlist = await client.playlists.create({
+  name: "Focus",
+  isPublic: false,
+})
+```
+
+Returns the new `Playlist`.
+
+### `addTracks(playlistId, trackIds)`
+
+Adds tracks (by numeric track id) to a playlist.
+
+```ts
+await client.playlists.addTracks(65996412, [33933680])
+```
+
+Returns the updated `Playlist`.
+
+### `removeTracks(playlistId, playlistTrackIds)`
+
+Removes tracks by their **playlist-track id** (the id of the track _within the playlist_, from `playlists.get`).
+
+```ts
+await client.playlists.removeTracks(65996412, [playlistTrackId])
+```
+
+Returns the updated `Playlist`.
+
+### `remove(playlistId)`
+
+Deletes a playlist.
+
+```ts
+await client.playlists.remove(65996412)
+```

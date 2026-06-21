@@ -1,0 +1,63 @@
+---
+title: "qobuz"
+description: "Reverse-engineered Qobuz API client for Node.js — fully typed search, metadata, library, playlists, and deep links"
+---
+
+`@kud/qobuz` is a typed, ESM-only client for the (reverse-engineered) Qobuz v0.2 API. It wraps authentication, search, rich metadata, full favourites and playlist management, and deep links into the Qobuz apps — returning clean camelCase domain types, with zero runtime dependencies. It's the shared core that [`@kud/qobuz-cli`](https://kud.io/projects/qobuz-cli) builds on.
+
+## 🚀 Install
+
+```sh
+npm install @kud/qobuz
+```
+
+Requires Node.js ≥ 20 (uses the built-in `fetch`).
+
+## ⚡ Quick start
+
+You authenticate with a `user_auth_token` borrowed from a logged-in browser session (see the **Authentication** page). `connect` validates it, persists it to a store, and hands back a ready client:
+
+```ts
+import { connect, createKeychainStore } from "@kud/qobuz"
+
+const client = await connect({ token, store: createKeychainStore() })
+
+const { albums } = await client.search.search("radiohead")
+const album = await client.albums.get(albums[0].id)
+
+console.log(`${album.title} — ${album.tracksCount} tracks`)
+console.log(client.deepLink.album(album.id)) // https://open.qobuz.com/album/0634904032432
+```
+
+On subsequent runs the token is already stored, so you skip `connect` and build straight from the store:
+
+```ts
+import { createQobuzClient, createKeychainStore } from "@kud/qobuz"
+
+const client = await createQobuzClient({ store: createKeychainStore() })
+```
+
+## 🧩 The client
+
+`createQobuzClient` (and `connect`) resolve to a `QobuzClient` — a plain object of resources and helpers:
+
+| Property            | Description                                          |
+| ------------------- | ---------------------------------------------------- |
+| `client.appId`      | The resolved Qobuz application id in use.            |
+| `client.search`     | Catalogue search across albums, tracks, and artists. |
+| `client.albums`     | Album metadata.                                      |
+| `client.artists`    | Artist metadata and similar-artist discovery.        |
+| `client.tracks`     | Track metadata.                                      |
+| `client.favourites` | List, add, and remove favourites.                    |
+| `client.playlists`  | List, read, create, edit, and delete playlists.      |
+| `client.deepLink`   | Build `open.qobuz.com` URLs for any entity.          |
+| `client.signOut()`  | Clear the credential store.                          |
+
+Every resource method is documented on the **Resources** page; the auth helpers and credential stores on **Authentication**; types, deep links, and errors on **Reference**.
+
+## 🎯 Design
+
+- **Token-based auth.** No password handling — Qobuz gates password login behind captchas, so the client uses a browser-issued session token instead.
+- **Pluggable credential storage.** A small `CredentialStore` interface; ships in-memory and macOS Keychain implementations, or bring your own.
+- **Typed domain model.** Raw snake_case wire shapes are mapped to camelCase `Album` / `Artist` / `Track` / `Playlist` types.
+- **Injectable `fetch`.** Every entry point accepts `fetchImpl`, so the client is trivial to test with a stub.
