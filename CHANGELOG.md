@@ -4,6 +4,14 @@ All notable changes to `@kud/qobuz` are documented here.
 
 ---
 
+## 0.5.0 — 2026-06-22
+
+### Highlights
+
+- **Open content directly in the Qobuz desktop app.** A new `createAppLink()` function generates `qobuzapp://` deep links for albums, tracks, playlists, and artists — letting consumers launch the desktop app to a specific item rather than opening a browser tab. Exposed on the client as `client.appLink` (alongside the existing `client.deepLink` for web URLs) and exported from the package barrel so it is available to all consumers without extra imports. ([81991fd](https://github.com/kud/qobuz/commit/81991fd130cc2cd3ae80246f17c4434895832b0c))
+
+---
+
 ## 0.4.0 — 2026-06-22
 
 ### Highlights
