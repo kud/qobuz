@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import {
+  createAppLink,
   createDeepLink,
   createMemoryStore,
   createQobuzClient,
@@ -62,6 +63,11 @@ describe("deep links", () => {
     expect(createDeepLink("play").track(42)).toBe(
       "https://play.qobuz.com/track/42",
     )
+  })
+
+  it("builds qobuzapp:// scheme links for the desktop app", () => {
+    expect(createAppLink().album("abc")).toBe("qobuzapp://album/abc")
+    expect(createAppLink().track(42)).toBe("qobuzapp://track/42")
   })
 })
 

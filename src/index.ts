@@ -21,7 +21,7 @@ export { createTransport, QOBUZ_BASE_URL } from "./http/transport.js"
 export type { Transport, TransportConfig } from "./http/transport.js"
 export type { QobuzError, QobuzErrorKind } from "./http/errors.js"
 
-export { createDeepLink } from "./deep-link.js"
+export { createAppLink, createDeepLink } from "./deep-link.js"
 export type { DeepLink, DeepLinkBase } from "./deep-link.js"
 
 export { readNowPlayingTrackId, defaultPlayerStatePath } from "./now-playing.js"

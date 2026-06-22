@@ -1,4 +1,4 @@
-import { createDeepLink } from "./deep-link.js"
+import { createAppLink, createDeepLink } from "./deep-link.js"
 import { authError } from "./http/errors.js"
 import { createTransport } from "./http/transport.js"
 import { createAlbumsResource } from "./resources/albums.js"
@@ -41,6 +41,7 @@ export const createQobuzClient = async ({
     favourites: createFavouritesResource(transport),
     playlists: createPlaylistsResource(transport),
     deepLink: createDeepLink(),
+    appLink: createAppLink(),
     nowPlaying: async (
       options?: NowPlayingOptions,
     ): Promise<Track | undefined> => {

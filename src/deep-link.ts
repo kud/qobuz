@@ -16,3 +16,10 @@ export const createDeepLink = (base: DeepLinkBase = "open"): DeepLink => {
     artist: (artistId) => `${root}/artist/${artistId}`,
   }
 }
+
+export const createAppLink = (): DeepLink => ({
+  album: (albumId) => `qobuzapp://album/${albumId}`,
+  track: (trackId) => `qobuzapp://track/${trackId}`,
+  playlist: (playlistId) => `qobuzapp://playlist/${playlistId}`,
+  artist: (artistId) => `qobuzapp://artist/${artistId}`,
+})
