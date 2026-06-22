@@ -4,6 +4,18 @@ All notable changes to `@kud/qobuz` are documented here.
 
 ---
 
+## 0.4.0 — 2026-06-22
+
+### Highlights
+
+- **Analyse your Qobuz library locally — genre mix, hi-res ratio, taste profile.** A new `readLibraryStats()` export reads the Qobuz desktop app's local SQLite database (`qobuz.db`) and returns rich collection analytics entirely on-device: bit-depth and hi-res breakdown, top genres, top labels, top artists by album count, a month-by-month collection timeline, and overall totals. No API call, no npm dependency — just the system `sqlite3` binary. macOS only. ([c89b946](https://github.com/kud/qobuz/commit/c89b946b7164a988a489f8b7f3f4cafcfc1da6b5))
+
+### Documentation
+
+- Docs index rewritten as an orientation guide rather than a copy of the README, so first-time readers can navigate straight to what they need. ([169a806](https://github.com/kud/qobuz/commit/169a80658fb320089656f520035ef57852bd5f9a))
+
+---
+
 ## 0.3.0 — 2026-06-22
 
 ### Highlights
