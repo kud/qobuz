@@ -26,7 +26,8 @@ export const readNowPlayingTrackId = async (
       await readFile(options.path ?? defaultPlayerStatePath(), "utf8"),
     )
     const queue = state?.playqueue?.data
-    const trackId = queue?.items?.[queue?.currentIndex]?.trackId
+    const activeList = queue?.shuffled ? queue?.shuffledItems : queue?.items
+    const trackId = activeList?.[queue?.currentIndex]?.trackId
     return typeof trackId === "number" ? trackId : undefined
   } catch {
     return undefined
