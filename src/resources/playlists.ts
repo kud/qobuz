@@ -10,6 +10,12 @@ export type CreatePlaylistParams = {
   isPublic?: boolean
 }
 
+export type UpdatePlaylistParams = {
+  name?: string
+  description?: string
+  isPublic?: boolean
+}
+
 export const createPlaylistsResource = (transport: Transport) => ({
   listForUser: async (options: PageOptions = {}): Promise<Playlist[]> => {
     const raw = await transport.get<RawPlaylists>("playlist/getUserPlaylists", {
@@ -40,6 +46,18 @@ export const createPlaylistsResource = (transport: Transport) => ({
         name,
         description,
         is_public: isPublic ? 1 : 0,
+      }),
+    ),
+  update: async (
+    playlistId: number,
+    { name, description, isPublic }: UpdatePlaylistParams,
+  ): Promise<Playlist> =>
+    mapPlaylist(
+      await transport.get("playlist/update", {
+        playlist_id: playlistId,
+        name,
+        description,
+        is_public: isPublic === undefined ? undefined : isPublic ? 1 : 0,
       }),
     ),
   remove: async (playlistId: number): Promise<void> => {

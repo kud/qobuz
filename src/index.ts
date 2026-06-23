@@ -37,7 +37,10 @@ export type {
 } from "./library-stats.js"
 
 export type { UserFavourites } from "./resources/favourites.js"
-export type { CreatePlaylistParams } from "./resources/playlists.js"
+export type {
+  CreatePlaylistParams,
+  UpdatePlaylistParams,
+} from "./resources/playlists.js"
 
 export type {
   Album,
