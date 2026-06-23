@@ -56,4 +56,5 @@ export const mapPlaylist = (raw: Raw): Playlist => ({
   isPublic: raw.is_public,
   owner: raw.owner?.name,
   duration: raw.duration,
+  image: raw.images300?.[0] ?? raw.images?.[0],
 })

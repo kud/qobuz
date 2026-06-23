@@ -43,6 +43,7 @@ export type Playlist = {
   isPublic?: boolean
   owner?: string
   duration?: number
+  image?: string
 }
 
 export type SearchResults = {
