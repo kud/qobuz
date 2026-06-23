@@ -31,6 +31,7 @@ export type Track = {
   trackNumber?: number
   duration?: number
   hires?: boolean
+  isrc?: string
 }
 
 export type Playlist = {

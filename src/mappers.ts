@@ -44,6 +44,7 @@ export const mapTrack = (raw: Raw): Track => ({
   trackNumber: raw.track_number,
   duration: raw.duration,
   hires: raw.hires,
+  isrc: raw.isrc,
 })
 
 export const mapPlaylist = (raw: Raw): Playlist => ({

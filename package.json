@@ -1,6 +1,6 @@
 {
   "name": "@kud/qobuz",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Reverse-engineered Qobuz API client for Node.js",
   "type": "module",
   "license": "MIT",
