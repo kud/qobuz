@@ -30,6 +30,7 @@ export const mapAlbum = (raw: Raw): Album => ({
   image: mapImage(raw.image),
   genre: raw.genre?.name,
   hires: raw.hires,
+  url: raw.url,
 })
 
 export const mapTrack = (raw: Raw): Track => ({

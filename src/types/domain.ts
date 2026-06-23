@@ -21,6 +21,7 @@ export type Album = {
   image?: QobuzImage
   genre?: string
   hires?: boolean
+  url?: string
 }
 
 export type Track = {
