@@ -57,4 +57,7 @@ export const mapPlaylist = (raw: Raw): Playlist => ({
   owner: raw.owner?.name,
   duration: raw.duration,
   image: raw.images300?.[0] ?? raw.images?.[0],
+  tracks: raw.tracks?.items
+    ? (raw.tracks.items as Raw[]).map(mapTrack)
+    : undefined,
 })

@@ -44,6 +44,7 @@ export type Playlist = {
   owner?: string
   duration?: number
   image?: string
+  tracks?: Track[]
 }
 
 export type SearchResults = {
