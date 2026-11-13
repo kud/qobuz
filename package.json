@@ -8,6 +8,7 @@
     "type": "git",
     "url": "git+https://github.com/kud/qobuz.git"
   },
+  "homepage": "https://kud.io/projects/qobuz",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
