@@ -8,6 +8,7 @@ export type ConnectConfig = {
   appId?: string
   store: CredentialStore
   fetchImpl?: typeof fetch
+  loginCommand?: string
 }
 
 export const connect = async ({
@@ -15,9 +16,10 @@ export const connect = async ({
   appId,
   store,
   fetchImpl,
+  loginCommand,
 }: ConnectConfig): Promise<QobuzClient> => {
   const resolvedAppId = appId ?? (await fetchAppId({ fetchImpl })).appId
   await validateCredentials({ appId: resolvedAppId, token, fetchImpl })
   await store.save({ appId: resolvedAppId, token })
-  return createQobuzClient({ store, fetchImpl })
+  return createQobuzClient({ store, fetchImpl, loginCommand })
 }

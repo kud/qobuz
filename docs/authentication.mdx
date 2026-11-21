@@ -49,6 +49,19 @@ const client = await createQobuzClient({ store: createKeychainStore() })
 
 Throws a `QobuzError` with `kind: "auth"` if the store is empty (not connected yet).
 
+### When Qobuz rotates its `app_id`
+
+Qobuz occasionally ships a new web player with a new `app_id`, which makes every request fail with a 401 even though the token is still good. The client recovers by itself: when a request is rejected and the error looks like an `app_id` mismatch, it re-runs `fetchAppId()` once, saves the new id through the store, and retries the request once. Concurrent requests that fail together share that single refresh.
+
+A 401 whose message points at user authentication (an expired or revoked token) never triggers a refresh, because a new `app_id` cannot fix it. In that case, or when the retry still fails, the call throws a `QobuzError` (`kind: "auth"`, `status: 401`) asking to log in again and naming the command, `qobuz login` by default. Pass `loginCommand` to name your own:
+
+```ts
+const client = await createQobuzClient({
+  store: createKeychainStore(),
+  loginCommand: "qobuz-bridge login",
+})
+```
+
 ## ✅ `validateCredentials(config)`
 
 Checks an `appId` + `token` against the live API (a lightweight favourites call). Resolves on success; throws a `QobuzError` (`kind: "auth"`, `status: 401`) if rejected. `connect` calls this for you.

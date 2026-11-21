@@ -158,7 +158,7 @@ type QobuzError = Error & {
 
 | `kind`      | When                                                                |
 | ----------- | ------------------------------------------------------------------- |
-| `auth`      | The token/app_id was rejected (e.g. expired session).               |
+| `auth`      | Credentials rejected and not recoverable (e.g. expired token).      |
 | `http`      | A non-2xx response from the API; `status` carries the code.         |
 | `bootstrap` | `fetchAppId` couldn't scrape the app_id (Qobuz changed its bundle). |
 
