@@ -22,8 +22,7 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "lint": "eslint ."
+    "test": "vitest run"
   },
   "engines": {
     "node": ">=20"
