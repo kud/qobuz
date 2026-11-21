@@ -1,6 +1,9 @@
 import { createAppLink, createDeepLink } from "./deep-link.js"
 import { authError } from "./http/errors.js"
-import { createTransport } from "./http/transport.js"
+import {
+  createSelfHealingTransport,
+  DEFAULT_LOGIN_COMMAND,
+} from "./auth/self-healing-transport.js"
 import { createAlbumsResource } from "./resources/albums.js"
 import { createArtistsResource } from "./resources/artists.js"
 import { createFavouritesResource } from "./resources/favourites.js"
@@ -14,26 +17,36 @@ import type { Track } from "./types/domain.js"
 export type QobuzClientConfig = {
   store: CredentialStore
   fetchImpl?: typeof fetch
+  /** Command named in the "log in again" error, e.g. `qobuz login`. */
+  loginCommand?: string
 }
 
 export const createQobuzClient = async ({
   store,
   fetchImpl,
+  loginCommand = DEFAULT_LOGIN_COMMAND,
 }: QobuzClientConfig) => {
   const credentials = await store.load()
   if (!credentials)
-    throw authError("not connected — store a valid app_id + token first")
+    throw authError(
+      `not connected — log in first with \`${loginCommand}\``,
+    )
 
-  const transport = createTransport({
-    appId: credentials.appId,
-    token: credentials.token,
+  // Recovers on its own when Qobuz rotates its app_id: one re-scrape, one
+  // persisted update, one retry; otherwise a "log in again" auth error.
+  const transport = createSelfHealingTransport({
+    credentials,
+    store,
     fetchImpl,
+    loginCommand,
   })
 
   const tracks = createTracksResource(transport)
 
   return {
-    appId: credentials.appId,
+    get appId() {
+      return transport.appId
+    },
     search: createSearchResource(transport),
     albums: createAlbumsResource(transport),
     artists: createArtistsResource(transport),

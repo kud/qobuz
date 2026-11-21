@@ -5,6 +5,15 @@ export { fetchAppId } from "./auth/bootstrap.js"
 export type { AppCredentials } from "./auth/bootstrap.js"
 export { validateCredentials } from "./auth/validate.js"
 export type { ValidateConfig } from "./auth/validate.js"
+export {
+  createSelfHealingTransport,
+  looksLikeAppIdMismatch,
+  DEFAULT_LOGIN_COMMAND,
+} from "./auth/self-healing-transport.js"
+export type {
+  SelfHealingTransport,
+  SelfHealingTransportConfig,
+} from "./auth/self-healing-transport.js"
 export { connect } from "./auth/connect.js"
 export type { ConnectConfig } from "./auth/connect.js"
 export {
