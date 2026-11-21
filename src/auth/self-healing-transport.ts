@@ -85,7 +85,8 @@ export const createSelfHealingTransport = ({
     fetchImpl,
   })
 
-  // One refresh per stale app_id, shared by every call that failed with it.
+  // One in-flight refresh per stale app_id, shared by the calls that failed
+  // with it while it runs.
   // Resolves to true when a new app_id was stored and a retry is worthwhile.
   let refresh: { from: string; outcome: Promise<boolean> } | undefined
 
@@ -108,10 +109,12 @@ export const createSelfHealingTransport = ({
       return true
     })()
     refresh = { from: staleAppId, outcome }
-    // a failed scrape (network, bundle layout) must not pin this app_id forever
-    outcome.catch(() => {
+    // share only the in-flight refresh: once it settles, whatever the result,
+    // a later failure may refresh again (long-lived daemons see more rotations)
+    const clear = () => {
       if (refresh?.outcome === outcome) refresh = undefined
-    })
+    }
+    outcome.then(clear, clear)
     return outcome
   }
 

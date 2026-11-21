@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
 import {
   createQobuzClient,
-  looksLikeAppIdMismatch,
   type CredentialStore,
   type StoredCredentials,
 } from "../src/index.js"
+import { looksLikeAppIdMismatch } from "../src/auth/self-healing-transport.js"
 
 const OLD_APP_ID = "100000001"
 const NEW_APP_ID = "200000002"
@@ -58,7 +58,11 @@ const mockQobuz = ({
   api: Api
   scrapedAppId?: string
 }) => {
-  const calls = { scrapes: 0, api: [] as (string | undefined)[] }
+  const calls = {
+    scrapes: 0,
+    api: [] as (string | undefined)[],
+    scrapedAppId,
+  }
   const fetchImpl = (async (input: unknown, init?: RequestInit) => {
     const url = String(input)
     if (url === "https://play.qobuz.com/login") {
@@ -67,7 +71,7 @@ const mockQobuz = ({
     }
     if (url === `https://play.qobuz.com${BUNDLE_PATH}`)
       return new Response(
-        `x={production:{api:{appId:"${scrapedAppId}",appSecret:"s"}}}`,
+        `x={production:{api:{appId:"${calls.scrapedAppId}",appSecret:"s"}}}`,
       )
     const appId = (init?.headers as Record<string, string> | undefined)?.[
       "X-App-Id"
@@ -151,6 +155,34 @@ describe("app_id rotation", () => {
     expect(calls.scrapes).toBe(1)
     expect(calls.api).toEqual([OLD_APP_ID])
     expect(saves).toEqual([])
+  })
+
+  it("still heals a later rotation after a refresh that found the same app_id", async () => {
+    const { store, saves } = recordingStore(seed)
+    let rotated = false
+    const { fetchImpl, calls } = mockQobuz({
+      api: (appId) =>
+        rotated && appId === NEW_APP_ID ? json(albumResponse) : json({}, 401),
+      scrapedAppId: OLD_APP_ID,
+    })
+    const client = await createQobuzClient({ store, fetchImpl })
+
+    // first 401: Qobuz has not rotated yet, so the scrape returns the same id
+    await expect(client.albums.get("123")).rejects.toMatchObject({
+      kind: "auth",
+    })
+    expect(calls.scrapes).toBe(1)
+    expect(saves).toEqual([])
+
+    // later, a real rotation: the same client must refresh again and recover
+    rotated = true
+    calls.scrapedAppId = NEW_APP_ID
+    const album = await client.albums.get("123")
+
+    expect(album.title).toBe("OK Computer")
+    expect(calls.scrapes).toBe(2)
+    expect(saves).toEqual([{ appId: NEW_APP_ID, token: "TOK" }])
+    expect(client.appId).toBe(NEW_APP_ID)
   })
 
   it("shares one refresh between concurrent calls", async () => {
