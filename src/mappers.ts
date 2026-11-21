@@ -6,8 +6,6 @@ import type {
   Track,
 } from "./types/domain.js"
 
-// wire shapes from the reverse-engineered API are untyped by design
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Raw = any
 
 const mapImage = (raw: Raw | undefined): QobuzImage | undefined =>
