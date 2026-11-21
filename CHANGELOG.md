@@ -4,6 +4,14 @@ All notable changes to `@kud/qobuz` are documented here.
 
 ---
 
+## 0.6.0 — 2026-11-21
+
+### Highlights
+
+- **The client recovers on its own when Qobuz rotates its `app_id`.** When a request is rejected with an error that looks like an `app_id` mismatch, the client re-scrapes the `app_id` once, persists it through the credential store and retries the request once; concurrent failures share a single refresh, and a later rotation can still heal after a refresh that found nothing new. An expired token never triggers a refresh: an unrecoverable 401 now throws an auth error naming the login command, configurable through the new `loginCommand` option on `createQobuzClient()` and `connect()`. ([445fd47](https://github.com/kud/qobuz/commit/445fd472439ce163941415f67cbfaa73e5cb8528))
+
+---
+
 ## 0.5.0 — 2026-06-22
 
 ### Highlights
